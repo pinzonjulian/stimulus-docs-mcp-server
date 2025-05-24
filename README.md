@@ -88,11 +88,41 @@ This is because the path to the `node` executable can not be found. If that's th
 "command": "/Users/<YOUR USER NAME/.local/share/mise/installs/node/20.18.3/bin/node
 ```
 
-## Documentation Source
+## Documentation Source & Caching Strategy
 
-The Stimulus documentation files included are copied from the official [stimulus-site repository](https://github.com/hotwired/stimulus-site). 
+This MCP server fetches the latest Stimulus documentation directly from the official [stimulus-site repository](https://github.com/hotwired/stimulus-site) on GitHub. To ensure optimal performance and reduce API calls, the server implements the following caching strategy:
 
-The next phase of exploration for this MCP could be to fetch the docs from the web to keep them up to date and store them locally for a set period of time.
+### How It Works
+
+1. **Fresh Content Detection**: The server checks the latest commit SHA and timestamp from the GitHub repository
+2. **Cache Key Generation**: A unique cache key is generated using the commit SHA (first 7 characters) and timestamp
+3. **Caching**: Documentation files are cached locally using the cache key as the folder structure
+4. **Cache Validation**: Before fetching from GitHub, the server checks if content is already cached for the current commit
+5. **Fallback Strategy**: If GitHub is unavailable, the server falls back to local documentation files
+
+### Cache Structure
+
+```
+cache/
+  {commit-sha}-{timestamp}/
+    handbook/
+      01_introduction.md
+      02_hello_stimulus.md
+      ...
+    reference/
+      actions.md
+      targets.md
+      ...
+```
+
+### Benefits
+
+- **Always Up-to-Date**: Content is automatically updated when the Stimulus repository changes
+- **Performance**: Cached content loads instantly without network requests
+- **Reliability**: Local fallback ensures the server works even when GitHub is unavailable
+- **Efficient**: Only fetches new content when the repository has been updated
+
+The local documentation files in `src/docs/` serve as a backup and ensure the MCP server remains functional even without internet connectivity.
 
 All credit for the documentation content goes to the Stimulus team and contributors.
 
